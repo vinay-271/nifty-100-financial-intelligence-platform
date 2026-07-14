@@ -1,21 +1,24 @@
-from pathlib import Path
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+EXCEL_HEADER_ROW = int(
+    os.getenv("EXCEL_HEADER_ROW", 1)
+)
 
-DATA_DIR = BASE_DIR / "data"
+PROJECT_NAME = os.getenv("PROJECT_NAME")
 
-RAW_DATA_DIR = DATA_DIR / "raw"
+DATABASE_PATH = os.getenv("DATABASE_PATH")
 
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
+RAW_CORE = os.getenv("RAW_CORE")
 
-OUTPUT_DIR = DATA_DIR / "output"
+RAW_SUPPORTING = os.getenv("RAW_SUPPORTING")
 
-DB_DIR = BASE_DIR / "db"
+PROCESSED_DATA = os.getenv("PROCESSED_DATA")
 
-DATABASE_PATH = DB_DIR / "nifty100.db"
+OUTPUT_DIR = os.getenv("OUTPUT_DIR")
+
+LOG_DIR = os.getenv("LOG_DIR")
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
