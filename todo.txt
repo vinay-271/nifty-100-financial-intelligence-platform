@@ -1,0 +1,15 @@
+Day 1
+    Checkpoint 1
+        Create project
+        Folder structure
+    Checkpoint 2
+        Virtual environment
+        Install libraries
+    Checkpoint 3
+        .env
+        requirements.txt
+        .gitignore
+    Checkpoint 4
+        Makefile
+        README
+        Initial commit
