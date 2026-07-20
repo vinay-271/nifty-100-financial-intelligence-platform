@@ -1,15 +1,6 @@
-Day 1
-    Checkpoint 1
-        Create project
-        Folder structure
-    Checkpoint 2
-        Virtual environment
-        Install libraries
-    Checkpoint 3
-        .env
-        requirements.txt
-        .gitignore
-    Checkpoint 4
-        Makefile
-        README
-        Initial commit
+Day 3 — Schema Understanding & Data Quality Engine
+🎯 Goal
+
+Build the Data Quality Validation Framework and implement the first set of validation rules.
+
+
