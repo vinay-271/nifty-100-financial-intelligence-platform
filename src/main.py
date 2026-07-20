@@ -1,21 +1,21 @@
 from pathlib import Path
 
 from src.etl.loader import ExcelLoader
+from src.etl.validator import DataValidator
 
-loader = ExcelLoader(Path("data/raw"))
 
-datasets = loader.load_all()
+core_loader = ExcelLoader(Path("data/raw/core"))
+supporting_loader = ExcelLoader(Path("data/raw/supporting"))
 
-print()
+datasets = {
+    **core_loader.load_all(),
+    **supporting_loader.load_all()
+}
 
-print(datasets.keys())
+validator = DataValidator(datasets)
 
-print()
+validator.validate()
 
-companies = datasets["companies"]
+validator.summary()
 
-print(companies.head())
-
-print()
-
-print(companies.columns.tolist())
+validator.export_report()
