@@ -1,21 +1,28 @@
-from pathlib import Path
+from etl.database_loader import DatabaseLoader
 
-from src.etl.loader import ExcelLoader
-from src.etl.validator import DataValidator
+# profit_loss = pd.read_csv(self.cleaned_data_path / "profitandloss.csv")
+# print(profit_loss["year"].unique())
 
+loader = DatabaseLoader()
 
-core_loader = ExcelLoader(Path("data/raw/core"))
-supporting_loader = ExcelLoader(Path("data/raw/supporting"))
+loader.connect()
+loader.create_tables()
+loader.clear_tables()
 
-datasets = {
-    **core_loader.load_all(),
-    **supporting_loader.load_all()
-}
+loader.load_companies()
+loader.load_profitandloss()
+loader.load_balancesheet()
+loader.load_cashflow()
+loader.load_analysis()
+loader.load_documents()
+loader.load_prosandcons()
+loader.load_stock_prices()
+loader.load_financial_ratios()
+loader.load_market_cap()
+loader.load_market_cap()
+loader.load_peer_groups()
+loader.load_sectors()
 
-validator = DataValidator(datasets)
+loader.export_load_audit()
 
-validator.validate()
-
-validator.summary()
-
-validator.export_report()
+loader.close()

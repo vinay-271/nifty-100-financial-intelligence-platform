@@ -1,4 +1,4 @@
-,abb,industrials,capital_goods,,large_cap
+id,company_id,sector,industry,weight_pct,market_cap_category
 2,ADANIENSOL,Energy,Power & Utilities,0.65,Large Cap
 3,ADANIENT,Industrials,Conglomerates,1.5,Large Cap
 4,ADANIGREEN,Energy,Renewable Energy,1.23,Large Cap

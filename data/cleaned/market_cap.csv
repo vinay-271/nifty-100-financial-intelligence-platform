@@ -1,4 +1,4 @@
-,abb,,,,,,,
+id,company_id,year,market_cap_cr,enterprise_value_cr,pe_ratio,pb_ratio,ev_ebitda,dividend_yield_pct
 2,ABB,2020,923674.33,1120679.72,67.54,13.03,24.93,3.9
 3,ABB,2021,1020674.09,1166450.81,62.63,6.67,7.58,1.58
 4,ABB,2022,1185994.82,1158637.42,18.68,4.75,6.12,3.35

@@ -5,8 +5,8 @@ Excel loading utilities for the N100 Financial Intelligence Platform.
 from pathlib import Path
 import pandas as pd
 from loguru import logger
-from src.etl.normaliser import normalize_headers
-from src.config import EXCEL_HEADER_ROW
+from etl.normaliser import normalize_headers
+from config import EXCEL_HEADER_ROW
 
 class ExcelLoader:
     """

@@ -1,24 +1,17 @@
-### Sprint 1 – Day 5: Load Cleaned Data into SQLite Warehouse
+tomorrow to ChatGPT
 
-1. Create `db/schema.sql`
-2. Design dimension and fact tables
-3. Create SQLite database (`n100.db`)
-4. Implement `DatabaseLoader` (`src/etl/database_loader.py`)
-5. Create database connection
-6. Create tables from `schema.sql`
-7. Load `companies` → `dim_company`
-8. Load date values → `dim_date`
-9. Load `profitandloss` → `fact_profit_loss`
-10. Load `balancesheet` → `fact_balance_sheet`
-11. Load `cashflow` → `fact_cash_flow`
-12. Handle transactions and rollback on failure
-13. Verify row counts after loading
-14. Verify primary key constraints
-15. Verify foreign key constraints
-16. Create indexes on key columns
-17. Implement loader logging
-18. Write unit tests for `DatabaseLoader`
-19. Integrate loader into ETL pipeline (`main.py`)
-20. Verify end-to-end ETL execution (Extract → Clean → Load)
-21. Commit changes to Git
-22. Tag Sprint milestone (optional)
+(.venv) PS E:\dev1\dev\intern\n100> python src/main.py
+2026-08-02 00:54:55.160 | INFO     | etl.database_loader:connect:39 - Connected to database: db\nifty100.db
+
+FAILED STATEMENT:
+
+-- N100 Financial Intelligence Platform
+-- SQLite Database Schema
+
+-- PRAGMA foreign_keys = OFF
+Traceback (most recent call last):
+  File "E:\dev1\dev\intern\n100\src\main.py", line 9, in <module>
+    loader.create_tables()
+  File "E:\dev1\dev\intern\n100\src\etl\database_loader.py", line 72, in create_tables
+    self.connection.executescript(schema)
+sqlite3.OperationalError: table companies already exists
