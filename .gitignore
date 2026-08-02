@@ -49,3 +49,5 @@ data/output/*.csv
 todo.txt
 rough_script.py
 sprint2.txt
+
+~$*.xlsx
