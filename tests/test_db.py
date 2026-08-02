@@ -9,7 +9,6 @@ def main():
     cursor = conn.cursor()
 
     tables = [
-        "companies",
         "profitandloss",
         "balancesheet",
         "cashflow",
@@ -21,6 +20,7 @@ def main():
         "market_cap",
         "peer_groups",
         "sectors",
+        "companies",
     ]
 
     print("\n" + "=" * 45)

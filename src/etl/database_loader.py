@@ -499,3 +499,71 @@ class DatabaseLoader:
             "loaded": len(df),
             "rejected": len(rejected),
         })
+
+    def load_peer_groups(self):
+        """Load peer_groups.csv into peer_groups table."""
+
+        if self.connection is None:
+            self.connect()
+
+        df = pd.read_csv(self.cleaned_data_path / "peer_groups.csv")
+
+        # Filter invalid company IDs
+        df, rejected = self.filter_valid_company_ids(df)
+
+        df.to_sql(
+            "peer_groups",
+            self.connection,
+            if_exists="append",
+            index=False,
+        )
+
+        self.connection.commit()
+
+        logger.info(
+            f"Loaded {len(df)} records into peer_groups."
+        )
+
+        logger.warning(
+            f"Rejected {len(rejected)} records due to missing company_id."
+        )
+
+        self.load_audit.append({
+            "table": "peer_groups",
+            "loaded_rows": len(df),
+            "rejected_rows": len(rejected),
+        })
+
+    def load_sectors(self):
+        """Load sectors.csv into sectors table."""
+
+        if self.connection is None:
+            self.connect()
+
+        df = pd.read_csv(self.cleaned_data_path / "sectors.csv")
+
+        # Filter invalid company IDs
+        df, rejected = self.filter_valid_company_ids(df)
+
+        df.to_sql(
+            "sectors",
+            self.connection,
+            if_exists="append",
+            index=False,
+        )
+
+        self.connection.commit()
+
+        logger.info(
+            f"Loaded {len(df)} records into sectors."
+        )
+
+        logger.warning(
+            f"Rejected {len(rejected)} records due to missing company_id."
+        )
+
+        self.load_audit.append({
+            "table": "sectors",
+            "loaded_rows": len(df),
+            "rejected_rows": len(rejected),
+        })

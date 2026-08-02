@@ -1,17 +1,52 @@
-tomorrow to ChatGPT
+My recommendation
 
-(.venv) PS E:\dev1\dev\intern\n100> python src/main.py
-2026-08-02 00:54:55.160 | INFO     | etl.database_loader:connect:39 - Connected to database: db\nifty100.db
+Don't jump into unit tests yet.
 
-FAILED STATEMENT:
+Instead, implement validator.py first. It will:
 
--- N100 Financial Intelligence Platform
--- SQLite Database Schema
+Reuse the same database you've just built.
+Automatically verify most of the sprint's acceptance criteria.
+Generate validation_failures.csv, which is one of the required deliverables.
+Make writing unit tests easier because you'll have well-defined validation logic to test.
 
--- PRAGMA foreign_keys = OFF
-Traceback (most recent call last):
-  File "E:\dev1\dev\intern\n100\src\main.py", line 9, in <module>
-    loader.create_tables()
-  File "E:\dev1\dev\intern\n100\src\etl\database_loader.py", line 72, in create_tables
-    self.connection.executescript(schema)
-sqlite3.OperationalError: table companies already exists
+After validator.py, we'll do:
+
+✅ validator.py
+✅ validation_failures.csv
+✅ exploratory_queries.sql
+✅ pytest unit tests
+✅ Manual review
+✅ Sprint 1 documentation and final checklist
+
+That sequence will take you from a working ETL pipeline to a Sprint 1 submission that closely matches the specification you shared.
+
+
+Development plan
+
+Don't implement all 16 rules at once. We'll build them in groups:
+
+Phase 1 (today)
+✅ DQ-01 PK uniqueness
+✅ DQ-02 (company_id, year) uniqueness
+✅ DQ-03 FK integrity
+
+These establish the framework.
+
+Phase 2
+DQ-04 Balance Sheet equation
+DQ-05 OPM validation
+DQ-06 Positive sales
+DQ-07 Net cash flow
+Phase 3
+DQ-08 through DQ-16
+
+This incremental approach makes it much easier to test and debug each rule before adding the next.
+
+
+Manual Review
+        ↓
+exploratory_queries.sql
+        ↓
+Unit Tests
+        ↓
+Sprint Review

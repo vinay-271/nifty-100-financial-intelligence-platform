@@ -24,13 +24,14 @@ class DataCleaner:
         self.trim_whitespace()
         self.normalize_missing_values()
         self.convert_numeric_columns()
-        self.remove_duplicate_business_records()
 
         self.normalize_stock_price_columns()
         self.normalize_financial_ratio_columns()
         self.normalize_market_cap_columns()
         self.normalize_peer_groups_columns()
         self.normalize_sectors_columns()
+
+        self.remove_duplicate_business_records()
 
         self.export_cleaned_data()
 
@@ -153,6 +154,8 @@ class DataCleaner:
             "profitandloss": ["company_id", "year"],
             "balancesheet": ["company_id", "year"],
             "cashflow": ["company_id", "year"],
+            "financial_ratios": ["company_id", "year"],
+            "market_cap": ["company_id", "year"],
         }
 
         for dataset_name, keys in business_keys.items():

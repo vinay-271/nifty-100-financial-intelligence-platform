@@ -1,17 +1,25 @@
-import sys
 from pathlib import Path
-
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from src.etl.loader import ExcelLoader
 from src.etl.cleaner import DataCleaner
 
-loader = ExcelLoader()
-datasets = loader.load_all()
 
-cleaner = DataCleaner()
-cleaned = cleaner.clean(datasets)
+def test_cleaner_pipeline():
 
-cleaner.export_cleaned_data()
+    loader = ExcelLoader(Path("data/raw"))
 
-print("Cleaning completed successfully.")
+    datasets = loader.load_all()
+
+    cleaner = DataCleaner()
+
+    cleaned = cleaner.clean(datasets)
+
+    assert cleaned is not None
+    assert isinstance(cleaned, dict)
+    assert len(cleaned) > 0
+
+    # Ensure expected datasets exist
+    assert "companies" in cleaned
+    assert "profitandloss" in cleaned
+    assert "balancesheet" in cleaned
+    assert "cashflow" in cleaned

@@ -44,3 +44,6 @@ build/
 
 # Output
 data/output/*.csv
+
+# Notes
+todo.txt

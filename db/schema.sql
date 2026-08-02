@@ -19,7 +19,7 @@
 PRAGMA foreign_keys = ON;
 
 
-CREATE TABLE companies (
+CREATE TABLE IF NOT EXISTS companies (
     id TEXT PRIMARY KEY,
 
     company_logo TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE companies (
     roe_percentage REAL
 );
 
-CREATE TABLE profitandloss (
+CREATE TABLE IF NOT EXISTS profitandloss (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE profitandloss (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE balancesheet (
+CREATE TABLE IF NOT EXISTS balancesheet (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE balancesheet (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE cashflow (
+CREATE TABLE IF NOT EXISTS cashflow (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -92,7 +92,7 @@ CREATE TABLE cashflow (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE analysis (
+CREATE TABLE IF NOT EXISTS analysis (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE analysis (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE documents (
+CREATE TABLE IF NOT EXISTS documents (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -115,7 +115,7 @@ CREATE TABLE documents (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE prosandcons (
+CREATE TABLE IF NOT EXISTS prosandcons (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS stock_prices (
     FOREIGN KEY (company_id) REFERENCES companies(id)
 );
 
-CREATE TABLE financial_ratios (
+CREATE TABLE IF NOT EXISTS financial_ratios (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE financial_ratios (
 -- Market Cap
 -- ============================================================
 
-CREATE TABLE market_cap (
+CREATE TABLE IF NOT EXISTS market_cap (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE market_cap (
 -- Peer Groups
 -- ============================================================
 
-CREATE TABLE peer_groups (
+CREATE TABLE IF NOT EXISTS peer_groups (
     id INTEGER PRIMARY KEY,
 
     peer_group TEXT NOT NULL,
@@ -202,7 +202,7 @@ CREATE TABLE peer_groups (
 -- Sectors
 -- ============================================================
 
-CREATE TABLE sectors (
+CREATE TABLE IF NOT EXISTS sectors (
     id INTEGER PRIMARY KEY,
 
     company_id TEXT NOT NULL,

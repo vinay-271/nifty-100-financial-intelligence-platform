@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from etl.loader import ExcelLoader
-from etl.cleaner import DataCleaner
+from src.etl.loader import ExcelLoader
+from src.etl.cleaner import DataCleaner
 
 loader = ExcelLoader(
     Path("data/raw")
