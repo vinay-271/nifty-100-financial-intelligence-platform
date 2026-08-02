@@ -6,22 +6,28 @@ from src.etl.normaliser import normalize_ticker
 @pytest.mark.parametrize(
     "input_value, expected",
     [
-        ("TCS", "TCS"),
         ("tcs", "TCS"),
-        ("tcs.ns", "TCS"),
+        ("TCS", "TCS"),
+        (" TCS ", "TCS"),
         ("TCS.NS", "TCS"),
-        ("INFY.BO", "INFY"),
-        ("infy.bo", "INFY"),
-        (" INFY ", "INFY"),
+        ("TCS.BO", "TCS"),
+        ("INFY NSE", "INFY"),
+        ("INFY BSE", "INFY"),
+        ("RELIANCE", "RELIANCE"),
+        (" reliance ", "RELIANCE"),
+        ("hdfcbank.ns", "HDFCBANK"),
+        ("axisbank.bo", "AXISBANK"),
         ("SBIN NSE", "SBIN"),
-        ("RELIANCE BSE", "RELIANCE"),
-        ("HDFCBANK", "HDFCBANK"),
-        ("LT", "LT"),
+        ("SBIN BSE", "SBIN"),
+        ("LTIM", "LTIM"),
+        ("LTIM.NS", "LTIM"),
+        ("LTIM BO", "LTIMBO"),
         ("M&M", "M&M"),
         ("BAJAJ-AUTO", "BAJAJ-AUTO"),
-        (None, None),
         ("", ""),
-    ],
+        (None, None),
+        (float("nan"), None),
+    ]
 )
 def test_normalize_ticker(input_value, expected):
     assert normalize_ticker(input_value) == expected
