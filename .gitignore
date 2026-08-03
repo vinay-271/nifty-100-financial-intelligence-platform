@@ -46,8 +46,8 @@ build/
 data/output/*.csv
 
 # Notes
-todo.txt
 rough_script.py
+todo.txt
 sprint2.txt
 
 ~$*.xlsx

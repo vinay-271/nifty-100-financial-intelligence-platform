@@ -25,6 +25,15 @@ from src.analytics.cagr import (
     stock_price_cagr,
 )
 
+from src.analytics.cashflow_kpis import (
+    free_cash_flow,
+    cfo_quality_score,
+    capex_intensity,
+    capex_label,
+    fcf_conversion_rate,
+    capital_allocation_pattern,
+)
+
 
 class RatioEngine:
     """
@@ -231,11 +240,13 @@ class RatioEngine:
             p.sales,
             p.operating_profit,
             p.interest,
+            p.other_income,
 
             b.borrowings,
             b.equity_capital,
             b.reserves,
-            b.total_assets
+            b.total_assets,
+            b.investments
 
         FROM profitandloss p
 
@@ -259,6 +270,7 @@ class RatioEngine:
 
             ic = interest_coverage(
                 row.operating_profit,
+                row.other_income,
                 row.interest,
             )
 
@@ -305,6 +317,8 @@ class RatioEngine:
 
         growth = self.growth_ratios()
 
+        cashflow = self.cashflow_ratios()
+
         ratios = (
             profitability
             .merge(
@@ -314,6 +328,11 @@ class RatioEngine:
             )
             .merge(
                 growth,
+                on=["company_id", "year"],
+                how="left",
+            )
+            .merge(
+                cashflow,
                 on=["company_id", "year"],
                 how="left",
             )
@@ -462,6 +481,171 @@ class RatioEngine:
 
         logger.info(
             f"Computed {len(results)} growth records."
+        )
+
+        return pd.DataFrame(results)
+
+    def cashflow_ratios(self):
+
+        logger.info("Computing cash flow KPIs...")
+
+        query = """
+        SELECT
+
+            c.company_id,
+            c.year,
+
+            c.operating_activity,
+            c.investing_activity,
+            c.financing_activity,
+
+            p.sales,
+            p.net_profit,
+            p.operating_profit
+
+        FROM cashflow c
+
+        LEFT JOIN profitandloss p
+
+            ON c.company_id = p.company_id
+        AND c.year = p.year
+
+        ORDER BY
+            c.company_id,
+            c.year
+        """
+
+        df = pd.read_sql(query, self.connection)
+
+        results = []
+        allocation_rows = []
+
+        for company, group in df.groupby("company_id"):
+
+            group = group.sort_values("year").reset_index(drop=True)
+
+            for i, row in group.iterrows():
+
+                # ----------------------------
+                # Free Cash Flow
+                # ----------------------------
+
+                fcf = free_cash_flow(
+                    row.operating_activity,
+                    row.investing_activity,
+                )
+
+                # ----------------------------
+                # CFO Quality (Rolling 5-Year)
+                # ----------------------------
+
+                window = group.iloc[max(0, i - 4): i + 1]
+
+                avg_cfo = window.operating_activity.mean()
+                avg_pat = window.net_profit.mean()
+
+                quality = cfo_quality_score(
+                    avg_cfo,
+                    avg_pat,
+                )
+
+                # ----------------------------
+                # CapEx
+                # ----------------------------
+
+                intensity = capex_intensity(
+                    row.investing_activity,
+                    row.sales,
+                )
+
+                intensity_label = capex_label(
+                    intensity,
+                )
+
+                # ----------------------------
+                # FCF Conversion
+                # ----------------------------
+
+                conversion = fcf_conversion_rate(
+                    fcf,
+                    row.operating_profit,
+                )
+
+                # ----------------------------
+                # Capital Allocation
+                # ----------------------------
+
+                pattern = capital_allocation_pattern(
+                    row.operating_activity,
+                    row.investing_activity,
+                    row.financing_activity,
+                    quality,
+                )
+
+                cfo_sign = "+" if row.operating_activity >= 0 else "-"
+                cfi_sign = "+" if row.investing_activity >= 0 else "-"
+                cff_sign = "+" if row.financing_activity >= 0 else "-"
+
+                allocation_rows.append({
+
+                    "company_id": row.company_id,
+
+                    "year": row.year,
+
+                    "cfo_sign": cfo_sign,
+
+                    "cfi_sign": cfi_sign,
+
+                    "cff_sign": cff_sign,
+
+                    "pattern_label": pattern,
+
+                })
+
+                results.append({
+
+                    "company_id": row.company_id,
+
+                    "year": row.year,
+
+                    "free_cash_flow": fcf,
+
+                    "cfo_quality_score": quality,
+
+                    "capex_intensity": intensity,
+
+                    "capex_label": intensity_label,
+
+                    "fcf_conversion_rate": conversion,
+
+                    "capital_allocation_pattern": pattern,
+
+                })
+
+        # -----------------------------------
+        # Export Capital Allocation CSV
+        # -----------------------------------
+
+        output_path = Path("data/output/capital_allocation.csv")
+
+        output_path.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        pd.DataFrame(
+            allocation_rows
+        ).to_csv(
+            output_path,
+            index=False,
+        )
+
+        logger.info(
+            f"Saved {len(allocation_rows)} capital allocation records."
+        )
+
+        logger.info(
+            f"Computed {len(results)} cash flow records."
         )
 
         return pd.DataFrame(results)

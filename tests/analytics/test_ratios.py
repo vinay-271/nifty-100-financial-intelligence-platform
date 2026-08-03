@@ -117,15 +117,27 @@ def test_debt_to_equity_negative_equity():
 # --------------------------------------------------
 
 def test_interest_coverage_normal():
-    assert interest_coverage(1000, 100) == 10.00
+    assert interest_coverage(
+        1000,
+        200,
+        100,
+    ) == 12.00
 
 
 def test_interest_coverage_zero_interest():
-    assert interest_coverage(1000, 0) is None
+    assert interest_coverage(
+        1000,
+        100,
+        0,
+    ) is None
 
 
 def test_interest_coverage_negative_interest():
-    assert interest_coverage(1000, -20) is None
+    assert interest_coverage(
+        1000,
+        100,     # other_income
+        -20      # interest
+    ) is None
 
 
 # --------------------------------------------------
@@ -133,7 +145,7 @@ def test_interest_coverage_negative_interest():
 # --------------------------------------------------
 
 def test_net_debt_normal():
-    assert net_debt(500, 200) == 300.00
+    assert net_debt(borrowings=500,investments=200,) == 300.00
 
 
 def test_net_debt_missing_cash():
@@ -186,3 +198,11 @@ def test_debt_free_false():
 
 def test_debt_free_none():
     assert debt_free_label(None) is False
+
+
+def test_net_debt_normal():
+    assert net_debt(500, 200) == 300.00
+
+
+def test_net_debt_none():
+    assert net_debt(None, 200) is None

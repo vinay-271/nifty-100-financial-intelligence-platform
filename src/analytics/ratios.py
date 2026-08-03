@@ -127,40 +127,34 @@ def debt_to_equity(
 
 def interest_coverage(
     operating_profit,
+    other_income,
     interest,
 ):
     """
     Interest Coverage Ratio
 
     Formula:
-        Operating Profit / Interest
+        Operating Profit + Other Income / Interest
     """
 
     if interest is None or interest <= 0:
         return None
 
     return round(
-        operating_profit / interest,
+        (operating_profit + other_income)/ interest,
         2,
     )
 
 
 def net_debt(
     borrowings,
-    cash,
+    investments,
 ):
-    """
-    Net Debt
-
-    Formula:
-        Borrowings - Cash
-    """
-
-    if cash is None:
-        cash = 0
+    if borrowings is None or investments is None:
+        return None
 
     return round(
-        borrowings - cash,
+        borrowings - investments,
         2,
     )
 
@@ -214,15 +208,3 @@ def debt_free_label(
 
     return borrowings == 0
 
-def net_debt(borrowings, cash):
-    """
-    Net Debt = Borrowings - Cash
-
-    NOTE:
-        Current dataset does not contain a cash column.
-        Function reserved for future use.
-    """
-    if cash is None:
-        return None
-
-    return round(borrowings - cash, 2)
