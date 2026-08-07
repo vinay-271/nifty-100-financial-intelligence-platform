@@ -232,29 +232,35 @@ class RatioEngine:
         logger.info("Computing leverage & efficiency ratios...")
 
         query = """
-        SELECT
+            SELECT
 
-            p.company_id,
-            p.year,
+                p.company_id,
+                p.year,
 
-            p.sales,
-            p.operating_profit,
-            p.interest,
-            p.other_income,
+                p.sales,
+                p.operating_profit,
+                p.interest,
+                p.other_income,
 
-            b.borrowings,
-            b.equity_capital,
-            b.reserves,
-            b.total_assets,
-            b.investments
+                b.borrowings,
+                b.equity_capital,
+                b.reserves,
+                b.total_assets,
+                b.investments,
 
-        FROM profitandloss p
+                s.sector
 
-        LEFT JOIN balancesheet b
+            FROM profitandloss p
 
-            ON p.company_id = b.company_id
-        AND p.year = b.year
-        """
+            LEFT JOIN balancesheet b
+
+                ON p.company_id = b.company_id
+            AND p.year = b.year
+
+            LEFT JOIN sectors s
+
+                ON p.company_id = s.company_id
+            """
 
         df = pd.read_sql(query, self.connection)
 
@@ -279,7 +285,26 @@ class RatioEngine:
                 row.total_assets,
             )
 
-            high = high_leverage_flag(dte)
+            # high = high_leverage_flag(dte)
+            is_financial = (
+                isinstance(row.sector, str)
+                and row.sector.strip().lower() == "financials"
+            )
+
+            if is_financial:
+
+                high = False
+
+                if dte is not None and dte > 5:
+
+                    logger.info(
+                        f"{row.company_id} ({row.year}) - "
+                        "High leverage flag suppressed for Financials sector."
+                    )
+
+            else:
+
+                high = high_leverage_flag(dte)
 
             debt_free = debt_free_label(
                 row.borrowings,
@@ -336,6 +361,47 @@ class RatioEngine:
                 on=["company_id", "year"],
                 how="left",
             )
+        )
+
+        # -------------------------------------------------------
+        # Fetch raw fields required for financial_ratios table
+        # -------------------------------------------------------
+
+        query = """
+        SELECT
+
+            p.company_id,
+            p.year,
+
+            p.eps,
+            p.dividend_payout,
+
+            c.book_value,
+
+            b.borrowings,
+
+            cf.operating_activity
+
+        FROM profitandloss p
+
+        LEFT JOIN companies c
+            ON p.company_id = c.id
+
+        LEFT JOIN balancesheet b
+            ON p.company_id = b.company_id
+        AND p.year = b.year
+
+        LEFT JOIN cashflow cf
+            ON p.company_id = cf.company_id
+        AND p.year = cf.year
+        """
+
+        raw = pd.read_sql(query, self.connection)
+
+        ratios = ratios.merge(
+            raw,
+            on=["company_id", "year"],
+            how="left",
         )
 
         logger.info(
@@ -649,3 +715,92 @@ class RatioEngine:
         )
 
         return pd.DataFrame(results)
+
+    def populate_financial_ratios(self):
+
+        logger.info("Populating financial_ratios table...")
+
+        ratios = self.build_ratio_table().copy()
+
+        # -----------------------------------------
+        # Rename columns to match DB schema
+        # -----------------------------------------
+
+        ratios = ratios.rename(columns={
+
+            "free_cash_flow": "free_cash_flow_cr",
+            "capex_intensity": "capex_cr",
+
+            "eps": "earnings_per_share",
+            "book_value": "book_value_per_share",
+            "dividend_payout": "dividend_payout_ratio_pct",
+
+            "borrowings": "total_debt_cr",
+            "operating_activity": "cash_from_operations_cr",
+
+            "sales_cagr": "revenue_cagr_5yr",
+            "profit_cagr": "pat_cagr_5yr",
+            "eps_cagr": "eps_cagr_5yr",
+
+        })
+
+        # -----------------------------------------
+        # Composite Quality Score (placeholder)
+        # -----------------------------------------
+
+        ratios["composite_quality_score"] = None
+
+        # -----------------------------------------
+        # Keep only DB columns
+        # -----------------------------------------
+
+        ratios = ratios[[
+            "company_id",
+            "year",
+
+            "net_profit_margin_pct",
+            "operating_profit_margin_pct",
+            "return_on_equity_pct",
+            "return_on_capital_employed_pct",
+
+            "debt_to_equity",
+            "interest_coverage",
+            "asset_turnover",
+
+            "free_cash_flow_cr",
+            "capex_cr",
+
+            "earnings_per_share",
+            "book_value_per_share",
+            "dividend_payout_ratio_pct",
+
+            "total_debt_cr",
+            "cash_from_operations_cr",
+
+            "revenue_cagr_5yr",
+            "pat_cagr_5yr",
+            "eps_cagr_5yr",
+
+            "composite_quality_score",
+        ]]
+
+        # -----------------------------------------
+        # Replace table contents
+        # -----------------------------------------
+
+        cursor = self.connection.cursor()
+
+        cursor.execute("DELETE FROM financial_ratios")
+
+        self.connection.commit()
+
+        ratios.to_sql(
+            "financial_ratios",
+            self.connection,
+            if_exists="append",
+            index=False,
+        )
+
+        logger.info(
+            f"Inserted {len(ratios)} rows into financial_ratios."
+        )
