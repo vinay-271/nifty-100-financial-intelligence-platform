@@ -43,7 +43,8 @@ dist/
 build/
 
 # Output
-data/output/*.csv
+data/output/
+output/
 
 # Notes
 rough_script.py
