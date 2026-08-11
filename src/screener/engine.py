@@ -6,6 +6,8 @@ import pandas as pd
 import yaml
 from loguru import logger
 
+from src.screener.composite import compute_composite_quality_score
+
 
 class ScreenerEngine:
 
@@ -589,3 +591,262 @@ class ScreenerEngine:
             on="company_id",
             how="left",
         )
+
+    def _add_fcf_cagr_5yr(self, df):
+        """
+        Calculate 5-year FCF CAGR using financial_ratios.free_cash_flow_cr history.
+
+        Uses the latest annual FCF and the FCF value
+        five fiscal years earlier for each company.
+
+        Returns None if base_fcf <= 0 or latest_fcf <= 0 (Sprint 2 CAGR convention).
+        """
+
+        query = """
+            SELECT
+                company_id,
+                year,
+                free_cash_flow_cr
+            FROM financial_ratios
+            """
+
+        fcf = pd.read_sql(query, self.connection)
+
+        # Keep only standard annual periods.
+        annual_mask = fcf["year"].astype(str).str.match(
+            r"^[A-Za-z]{3}\s\d{4}$"
+        )
+        fcf = fcf[annual_mask].copy()
+
+        fcf["fiscal_year"] = (
+            fcf["year"]
+            .str.extract(r"(\d{4})")[0]
+            .astype(int)
+        )
+
+        fcf = fcf.sort_values(
+            ["company_id", "fiscal_year"]
+        )
+
+        latest = (
+            fcf
+            .groupby("company_id", as_index=False)
+            .tail(1)
+            [["company_id", "fiscal_year", "free_cash_flow_cr"]]
+            .rename(
+                columns={
+                    "fiscal_year": "latest_fiscal_year",
+                    "free_cash_flow_cr": "latest_fcf",
+                }
+            )
+        )
+
+        base = fcf.rename(
+            columns={
+                "fiscal_year": "base_fiscal_year",
+                "free_cash_flow_cr": "base_fcf",
+            }
+        )
+
+        latest = latest.merge(
+            base[
+                [
+                    "company_id",
+                    "base_fiscal_year",
+                    "base_fcf",
+                ]
+            ],
+            left_on=[
+                "company_id",
+            ],
+            right_on=[
+                "company_id",
+            ],
+            how="left",
+        )
+
+        latest = latest[
+            latest["base_fiscal_year"]
+            == latest["latest_fiscal_year"] - 5
+        ].copy()
+
+        # Sprint 2 CAGR convention: None if base <= 0 OR latest <= 0
+        latest["fcf_cagr_5yr"] = None
+        valid_mask = (latest["base_fcf"] > 0) & (latest["latest_fcf"] > 0)
+        latest.loc[valid_mask, "fcf_cagr_5yr"] = (
+            (
+                latest.loc[valid_mask, "latest_fcf"]
+                / latest.loc[valid_mask, "base_fcf"]
+            ) ** (1 / 5) - 1
+        ) * 100
+
+        cagr = latest[
+            [
+                "company_id",
+                "fcf_cagr_5yr",
+            ]
+        ]
+
+        return df.merge(
+            cagr,
+            on="company_id",
+            how="left",
+        )
+
+    def _add_cfo_pat_ratio(self, df):
+        """
+        Calculate CFO/PAT ratio using latest annual operating cash flow
+        and latest annual net profit.
+        """
+
+        # Get latest annual operating_activity from cashflow
+        cfo_query = """
+            SELECT
+                company_id,
+                year,
+                operating_activity
+            FROM cashflow
+        """
+        cfo = pd.read_sql(cfo_query, self.connection)
+
+        annual_mask = cfo["year"].astype(str).str.match(
+            r"^[A-Za-z]{3}\s\d{4}$"
+        )
+        cfo = cfo[annual_mask].copy()
+
+        cfo["fiscal_year"] = (
+            cfo["year"]
+            .str.extract(r"(\d{4})")[0]
+            .astype(int)
+        )
+
+        cfo = cfo.sort_values(["company_id", "fiscal_year"])
+
+        latest_cfo = (
+            cfo
+            .groupby("company_id", as_index=False)
+            .tail(1)
+            [["company_id", "fiscal_year", "operating_activity"]]
+            .rename(
+                columns={
+                    "fiscal_year": "latest_fiscal_year",
+                    "operating_activity": "latest_cfo",
+                }
+            )
+        )
+
+        # Get latest annual net_profit from profitandloss
+        pat_query = """
+            SELECT
+                company_id,
+                year,
+                net_profit
+            FROM profitandloss
+        """
+        pat = pd.read_sql(pat_query, self.connection)
+
+        pat = pat[
+            pat["year"].astype(str).str.match(
+                r"^[A-Za-z]{3}\s\d{4}$"
+            )
+        ].copy()
+
+        pat["fiscal_year"] = (
+            pat["year"]
+            .str.extract(r"(\d{4})")[0]
+            .astype(int)
+        )
+
+        pat = pat.sort_values(["company_id", "fiscal_year"])
+
+        latest_pat = (
+            pat
+            .groupby("company_id", as_index=False)
+            .tail(1)
+            [["company_id", "fiscal_year", "net_profit"]]
+            .rename(
+                columns={
+                    "fiscal_year": "latest_fiscal_year",
+                    "net_profit": "latest_pat",
+                }
+            )
+        )
+
+        # Merge CFO and PAT on company_id
+        ratio = latest_cfo.merge(latest_pat, on="company_id", how="left")
+
+        ratio["cfo_pat_ratio"] = None
+        valid_mask = (ratio["latest_pat"] != 0) & ratio["latest_cfo"].notna() & ratio["latest_pat"].notna()
+        ratio.loc[valid_mask, "cfo_pat_ratio"] = (
+            ratio.loc[valid_mask, "latest_cfo"]
+            / ratio.loc[valid_mask, "latest_pat"]
+        )
+
+        return df.merge(
+            ratio[["company_id", "cfo_pat_ratio"]],
+            on="company_id",
+            how="left",
+        )
+
+    def compute_composite_scores(self, df):
+        """
+        Compute composite quality scores for the latest annual universe.
+
+        Adds:
+        - fcf_cagr_5yr (from financial_ratios.free_cash_flow_cr history)
+        - cfo_pat_ratio (latest annual CFO / latest annual PAT)
+        - fcf_positive_flag (1 if latest free_cash_flow_cr > 0 else 0)
+        - composite_quality_score (0-100, sector-relative, P10/P90 winsorised)
+
+        Persists composite_quality_score to financial_ratios table.
+        """
+        # 1. Add FCF CAGR 5yr
+        df = self._add_fcf_cagr_5yr(df)
+
+        # 2. Add CFO/PAT ratio
+        df = self._add_cfo_pat_ratio(df)
+
+        # 3. Add FCF positive flag
+        df["fcf_positive_flag"] = (df["free_cash_flow_cr"] > 0).astype(int)
+
+        # 4. Compute composite scores
+        df = compute_composite_quality_score(df)
+
+        # 5. Persist to database
+        self._persist_composite_scores(df)
+
+        logger.info(
+            f"Composite scores computed. Range: "
+            f"{df['composite_quality_score'].min():.1f} - "
+            f"{df['composite_quality_score'].max():.1f}"
+        )
+
+        return df
+
+    def _persist_composite_scores(self, df):
+        """
+        Write composite_quality_score back to financial_ratios
+        for the latest annual record of each company.
+        """
+        # Get the latest annual year for each company from the current data
+        update_data = df[["company_id", "year", "composite_quality_score"]].copy()
+        update_data = update_data.dropna(subset=["composite_quality_score"])
+
+        if update_data.empty:
+            logger.warning("No composite scores to persist.")
+            return
+
+        cursor = self.connection.cursor()
+
+        for _, row in update_data.iterrows():
+            cursor.execute(
+                """
+                UPDATE financial_ratios
+                SET composite_quality_score = ?
+                WHERE company_id = ? AND year = ?
+                """,
+                (row["composite_quality_score"], row["company_id"], row["year"])
+            )
+
+        self.connection.commit()
+        logger.info(f"Persisted composite scores for {len(update_data)} records.")
