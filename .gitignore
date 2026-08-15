@@ -45,10 +45,12 @@ build/
 # Output
 data/output/
 output/
+reports/radar_charts
 
 # Notes
 rough_script.py
 todo.txt
-sprint3.txt
+sprint4.txt
+sprint4.md
 
 ~$*.xlsx
