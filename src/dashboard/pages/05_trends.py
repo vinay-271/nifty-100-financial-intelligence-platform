@@ -214,3 +214,72 @@ if not pl.empty and "eps" in pl.columns:
             fig,
             use_container_width=True,
         )
+
+
+# ---------------------------------------------------------------
+# Growth Summary
+# ---------------------------------------------------------------
+
+st.divider()
+st.subheader("5-Year Growth Summary")
+
+if ratios.empty:
+    st.info("No ratio data available for CAGR analysis.")
+else:
+
+    # Use the latest annual ratio record.
+    annual_ratios = ratios[
+        ratios["year"]
+        .astype(str)
+        .str.match(r"^[A-Za-z]{3}\s\d{4}$")
+    ].copy()
+
+    if annual_ratios.empty:
+        st.info("No annual ratio data available.")
+    else:
+
+        annual_ratios["fiscal_year"] = (
+            annual_ratios["year"]
+            .astype(str)
+            .str.extract(r"(\d{4})")[0]
+            .astype(int)
+        )
+
+        latest = annual_ratios.loc[
+            annual_ratios["fiscal_year"].idxmax()
+        ]
+
+        growth_metrics = [
+            (
+                "Revenue CAGR",
+                "revenue_cagr_5yr",
+            ),
+            (
+                "PAT CAGR",
+                "pat_cagr_5yr",
+            ),
+            (
+                "EPS CAGR",
+                "eps_cagr_5yr",
+            ),
+        ]
+
+        cols = st.columns(3)
+
+        for col, (label, column) in zip(
+            cols,
+            growth_metrics,
+        ):
+
+            value = latest.get(column)
+
+            if pd.isna(value):
+                display = "N/A"
+            else:
+                display = f"{float(value):.2f}%"
+
+            with col:
+                st.metric(
+                    label,
+                    display,
+                )
