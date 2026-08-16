@@ -51,6 +51,20 @@ def get_ratios(ticker, year=None):
         return pd.read_sql(query, conn, params=params)
 
 @st.cache_data(ttl=600)
+def get_ratios_by_year(year):
+    """Return financial ratios for all companies for one annual period."""
+    with _get_connection() as conn:
+        return pd.read_sql(
+            """
+            SELECT *
+            FROM financial_ratios
+            WHERE year = ?
+            """,
+            conn,
+            params=[year],
+        )
+
+@st.cache_data(ttl=600)
 def get_pl(ticker):
     """Return profit and loss history for a company."""
     with _get_connection() as conn:
@@ -178,3 +192,17 @@ def get_latest_period():
         return "N/A"
 
     return result.iloc[0]["year"]
+
+@st.cache_data(ttl=600)
+def get_market_data_by_year(year):
+    """Return market and valuation data for one financial year."""
+    with _get_connection() as conn:
+        return pd.read_sql(
+            """
+            SELECT *
+            FROM market_cap
+            WHERE year = ?
+            """,
+            conn,
+            params=[year],
+        )
