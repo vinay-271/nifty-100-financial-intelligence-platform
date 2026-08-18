@@ -1,69 +1,39 @@
 # N100 Financial Intelligence Platform
 
-A modular financial analytics platform that ingests, cleans, validates, and analyzes Nifty 100 company financial data using a scalable ETL pipeline and SQLite data warehouse.
+A modular financial analytics platform for the Nifty 100 universe that ingests, cleans, validates, stores, and analyzes financial data through a structured ETL pipeline, SQLite data warehouse, analytics engines, and interactive Streamlit dashboard.
 
 ---
 
 # 🚀 Project Status
 
-**Current Sprint:** Sprint 2 – Financial Metrics
+**Current Sprint:** Sprint 4 – Dashboard & Valuation
+**Status:** ✅ Complete
 
-## Progress
-
-### Sprint 1 – Data Foundation ✅
-
-- ✅ Day 1 – Environment Setup
-- ✅ Day 2 – Excel Loader & Normalizer
-- ✅ Day 3 – Data Quality Validation (DQ-01 to DQ-16)
-- ✅ Day 4 – SQLite Database Schema
-- ✅ Day 5 – Full Data Load (12 datasets)
-- ✅ Day 6 – Manual Data Review
-- ✅ Day 7 – Sprint Wrap-Up
-
-### Sprint 2 – Financial Metrics 🚧
-
-- ✅ Day 8 – Profitability Ratio Engine
-- ✅ Day 9 – Leverage & Efficiency Ratio Engine
-- ✅ Day 10 – Growth & CAGR Engine
-- ⏳ Day 11 – Cash Flow KPI Engine
-- ⏳ Day 12 – Financial Ratio Database Update
-- ⏳ Day 13 – KPI Validation & Review
-- ⏳ Day 14 – Sprint Wrap-Up
+The platform currently covers the complete data pipeline from raw financial datasets through analytics, screening, valuation, and interactive visualization.
 
 ---
 
-# Features Implemented
+# Features
 
 ## ETL Pipeline
 
 - Generic Excel Loader
 - Automatic Excel File Discovery
-- Batch Loading of 12 Excel datasets
-- Header Normalization
-- Year Normalization
-- Stock Ticker Normalization
-- Numeric Data Cleaning
-- Missing Value Normalization
-- Duplicate Business Record Removal
-- Structured Logging
-- Environment-based Configuration
-
----
-
-## Data Warehouse
-
-- SQLite Database
-- 11 Relational Tables
-- Primary & Foreign Key Constraints
-- Foreign Key Validation
-- Load Audit Report Generation
-- Validation Failure Report Generation
+- Batch loading of financial datasets
+- Header normalization
+- Year normalization
+- Stock ticker normalization
+- Numeric data cleaning
+- Missing value normalization
+- Duplicate business record removal
+- Structured logging
+- Environment-based configuration
 
 ---
 
 ## Data Quality Validation
 
-Implemented all **16 Data Quality Rules**
+Implemented **16 Data Quality Rules**:
 
 - DQ-01 Primary Key Uniqueness
 - DQ-02 Company-Year Uniqueness
@@ -84,9 +54,9 @@ Implemented all **16 Data Quality Rules**
 
 ---
 
-## Financial Analytics Engine
+# Financial Analytics
 
-### Profitability Metrics
+## Profitability
 
 - Net Profit Margin
 - Operating Profit Margin
@@ -94,136 +64,437 @@ Implemented all **16 Data Quality Rules**
 - Return on Capital Employed (ROCE)
 - Return on Assets (ROA)
 
-### Leverage & Efficiency Metrics
+## Leverage & Efficiency
 
 - Debt-to-Equity Ratio
 - Interest Coverage Ratio
-- Asset Turnover Ratio
+- Asset Turnover
 - High Leverage Flag
-- Debt-Free Label
+- Debt-Free Classification
 
-### Growth Analytics
+## Growth
 
-- Generic CAGR Calculator
-- Sales CAGR
-- Profit CAGR
+- Revenue CAGR
+- PAT CAGR
 - EPS CAGR
 - Book Value CAGR
 - Stock Price CAGR
 
+## Cash Flow
+
+- Free Cash Flow
+- Cash From Operations
+- Capex
+- FCF CAGR
+- CFO/PAT analysis
+- Cash-flow quality indicators
+
+## Composite Quality Score
+
+Companies are evaluated using a weighted composite quality model covering:
+
+- Profitability
+- Cash Quality
+- Growth
+- Leverage
+
+The scoring engine includes winsorisation, normalization, metric direction handling, and composite scoring.
+
 ---
 
-## Reports Generated
+# Screening
 
-- load_audit.csv
-- validation_failures.csv
-- profitability_ratios.csv
-- financial_ratios_computed.csv
-- opm_edge_cases.csv
+The Nifty 100 Screener supports configurable financial filters and six predefined strategies:
+
+1. Quality Compounder
+2. Value Pick
+3. Growth Accelerator
+4. Dividend Champion
+5. Debt-Free Blue Chip
+6. Turnaround Watch
+
+Screening results can be exported to CSV and Excel.
+
+---
+
+# Peer Analysis
+
+The peer analytics engine provides percentile-based company comparisons across peer groups.
+
+Supported metrics include:
+
+- ROE
+- ROCE
+- Net Profit Margin
+- Debt-to-Equity
+- Free Cash Flow
+- PAT CAGR
+- Revenue CAGR
+- EPS CAGR
+- Interest Coverage
+- Asset Turnover
+
+The dashboard also provides interactive peer comparison and radar-chart visualization.
+
+---
+
+# Valuation Analysis
+
+The valuation engine evaluates the latest available market valuation data.
+
+### Metrics
+
+- P/E
+- P/B
+- EV/EBITDA
+- FCF Yield
+- Five-year median P/E
+- P/E versus sector median
+
+### Valuation Flags
+
+Companies are classified using sector-relative P/E:
+
+- **Caution** — P/E > 1.5× sector median
+- **Discount** — P/E < 0.7× sector median
+- **Fair** — otherwise
+
+Generated outputs:
+
+```text
+output/valuation_summary.xlsx
+output/valuation_flags.csv
+````
+
+The valuation summary contains 92 companies.
+
+---
+
+# 📊 Streamlit Dashboard
+
+The project includes an interactive eight-page Streamlit dashboard.
+
+## 1. Home
+
+Provides:
+
+* Nifty 100 company coverage
+* Sector coverage
+* Latest financial period
+* Company universe
+* Sector distribution
+
+## 2. Company Profile
+
+Provides:
+
+* Company overview
+* Financial ratios
+* Profit & Loss
+* Balance Sheet
+* Cash Flow
+* Valuation data
+* Historical financial charts
+
+## 3. Screener
+
+Provides:
+
+* Six predefined screening strategies
+* Composite quality scores
+* Screening results
+* CSV export
+
+## 4. Peer Comparison
+
+Provides:
+
+* Peer-group selection
+* Percentile rankings
+* Company comparison
+* Radar-chart visualization
+* Detailed peer data
+
+## 5. Trend Analysis
+
+Provides:
+
+* Financial ratio trends
+* Profitability trends
+* EPS trends
+* Revenue/PAT growth
+* Five-year CAGR summary
+
+## 6. Sector Analysis
+
+Provides:
+
+* Sector composition
+* Sector weights
+* Industry distribution
+* Sector company lists
+* Sector financial averages
+* Company-level metric comparisons
+
+## 7. Capital Allocation
+
+Provides:
+
+* Operating cash flow
+* Investing cash flow
+* Financing cash flow
+* Free cash flow
+* Capex
+* Debt analysis
+* Cash-flow trends
+
+## 8. Reports
+
+Provides access to generated:
+
+* Screener reports
+* Peer comparison reports
+* Radar charts
+* Downloadable analytics artifacts
 
 ---
 
 # Project Architecture
 
-```
-Excel Files
-      │
-      ▼
- Excel Loader
-      │
-      ▼
- Data Cleaner
-      │
-      ▼
- Data Validator
-      │
-      ▼
- SQLite Database
-      │
-      ▼
- Ratio Engine
-      ├── Profitability
-      ├── Leverage
-      └── Growth
-      │
-      ▼
- Computed KPI Reports
+```text
+Raw Excel Datasets
+        │
+        ▼
+   Excel Loader
+        │
+        ▼
+   Data Cleaner
+        │
+        ▼
+ Data Quality Validator
+        │
+        ▼
+ SQLite Data Warehouse
+        │
+        ├───────────────┐
+        ▼               ▼
+ Financial Ratio    Cash Flow
+     Engine            KPIs
+        │               │
+        └───────┬───────┘
+                ▼
+        Analytics Layer
+                │
+       ┌────────┼─────────┐
+       ▼        ▼         ▼
+   Screener   Peer     Valuation
+    Engine   Engine      Engine
+       │        │         │
+       └────────┼─────────┘
+                ▼
+        Streamlit Dashboard
+                │
+       ┌────────┼─────────────┐
+       ▼        ▼             ▼
+    Profiles  Analytics     Reports
 ```
 
 ---
 
-# Tech Stack
+# Project Structure
 
-- Python 3.12
-- Pandas
-- NumPy
-- SQLite
-- OpenPyXL
-- Pytest
-- Loguru
-- Rich
-- Python-dotenv
+```text
+n100/
+│
+├── config/
+│   └── screener_config.yaml
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── db/
+│   └── nifty100.db
+│
+├── output/
+│   ├── screener_output.xlsx
+│   ├── peer_comparison.xlsx
+│   ├── valuation_summary.xlsx
+│   └── valuation_flags.csv
+│
+├── reports/
+│   ├── nifty100_screener.xlsx
+│   └── radar_charts/
+│
+├── src/
+│   ├── analytics/
+│   ├── dashboard/
+│   ├── etl/
+│   └── screener/
+│
+├── tests/
+│
+├── requirements.txt
+└── README.md
+```
+
+---
+
+# Running the Dashboard
+
+Create/activate the Python environment and install dependencies:
+
+```powershell
+pip install -r requirements.txt
+```
+
+Run the Streamlit application from the project root:
+
+```powershell
+streamlit run src/dashboard/app.py
+```
+
+The dashboard opens with the eight available analytics pages in the sidebar.
+
+---
+
+# Running the Tests
+
+Run the complete test suite:
+
+```powershell
+pytest -q
+```
+
+Current regression status:
+
+```text
+189 passed
+22 warnings
+```
+
+The warnings are non-fatal and do not cause test failures.
+
+---
+
+# Generated Outputs
+
+The platform generates several analytical artifacts.
+
+### ETL / Validation
+
+```text
+load_audit.csv
+validation_failures.csv
+```
+
+### Financial Analytics
+
+```text
+profitability_ratios.csv
+financial_ratios_computed.csv
+opm_edge_cases.csv
+```
+
+### Screening
+
+```text
+output/screener_output.xlsx
+reports/nifty100_screener.xlsx
+```
+
+### Peer Analysis
+
+```text
+output/peer_comparison.xlsx
+```
+
+### Valuation
+
+```text
+output/valuation_summary.xlsx
+output/valuation_flags.csv
+```
+
+### Radar Charts
+
+```text
+reports/radar_charts/
+```
+
+---
+
+# Technology Stack
+
+* Python 3.12
+* Pandas
+* NumPy
+* SQLite
+* OpenPyXL
+* PyYAML
+* Plotly
+* Streamlit
+* Pytest
+* Loguru
+* Rich
+* Python-dotenv
 
 ---
 
 # Sprint Progress
 
-| Sprint                         | Status                  |
-| ------------------------------ | ----------------------- |
-| ✅ Sprint 1 – Data Foundation   | Complete                |
-| 🟨 Sprint 2 – Financial Metrics | In Progress (Day 10/14) |
-| ⏳ Sprint 3 – Analytics Engine  | Pending                 |
-| ⏳ Sprint 4 – Dashboard & API   | Pending                 |
+| Sprint                               | Status     |
+| ------------------------------------ | ---------- |
+| Sprint 1 – Data Foundation           | ✅ Complete |
+| Sprint 2 – Financial Metrics         | ✅ Complete |
+| Sprint 3 – Analytics Engine          | ✅ Complete |
+| Sprint 4 – Dashboard, Valuation & QA | ✅ Complete |
+| Sprint 5                             | ⏳ Pending  |
 
 ---
 
-# Testing
+# Sprint 4 Completion
 
-Implemented comprehensive automated testing using **pytest**.
+Sprint 4 delivered:
 
-## Current Test Coverage
+* Eight functional Streamlit dashboard screens
+* Interactive company financial profiles
+* Six preset screeners
+* Composite quality scoring
+* Peer percentile comparison
+* Peer radar charts
+* Historical trend analysis
+* Sector analytics
+* Capital allocation analysis
+* Reports and downloadable outputs
+* Valuation engine
+* Sector-relative valuation flags
+* 92-company valuation summary
+* Integration and regression testing
+* Partial-data handling
+* Performance validation
 
-### ETL
+### QA Results
 
-- normalize_year()
-- normalize_ticker()
-- Data Cleaner
-
-### Financial Analytics
-
-- Profitability Ratio Functions
-- Leverage & Efficiency Ratio Functions
-
-## Current Status
-
-- **79+ automated tests passing**
-- Data Quality Validation (DQ-01 to DQ-16)
-- Manual validation completed for:
-  - ABB
-  - AXISBANK
-  - TCS
-  - RELIANCE
-  - ADANIENSOL
-
----
-
-# Current Outputs
-
-- SQLite database with 11 populated tables
-- Zero foreign key violations
-- Complete ETL pipeline
-- Financial KPI computation engine
-- Automated validation reports
-- Exploratory SQL queries
-- Unit-tested analytics library
+```text
+Automated tests: 189 passed
+Regression runtime: ~15 seconds
+Profile database load: ~0.007 seconds
+Valuation companies: 92
+Dashboard screens: 8
+```
 
 ---
 
-# Next Milestones
+# Known Data Edge Cases
 
-- Cash Flow KPI Engine
-- Financial Ratio Database Update
-- KPI Validation & Benchmarking
-- Analytics Dashboard
-- REST API
-- Interactive Financial Intelligence Platform
+The source dataset contains limited missing values for some companies.
+
+Examples identified during valuation QA:
+
+* ABB has no sector mapping, so sector-relative P/E comparison is unavailable.
+* ATGL has missing free cash flow, so FCF Yield is unavailable.
+
+These cases are handled without crashing the analytics pipeline or dashboard.
+
+---
