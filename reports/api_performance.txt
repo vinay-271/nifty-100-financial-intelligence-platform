@@ -1,0 +1,17 @@
+N100 Financial Intelligence API
+Performance Test — Day 43
+
+Endpoint:
+GET /screener/preset/quality_compounder
+
+Concurrent requests: 10
+Successful requests: 10
+Failed requests: 0
+
+Total wall time: 2.589 s
+Average response time: 2.472 s
+Maximum response time: 2.585 s
+Minimum response time: 2.291 s
+
+Acceptance target: <= 10.0 s
+Result: PASS
